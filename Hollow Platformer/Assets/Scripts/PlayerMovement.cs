@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
   public LayerMask canJumpOnLayer;
 
   private float movement;
-  private bool isJumping = false;
+  private bool isGrounded = true;
 
   private Quaternion flipped = Quaternion.Euler(new Vector3(0, 180, 0));
   private Quaternion notFlipped = Quaternion.Euler(new Vector3(0, 0, 0));
@@ -37,16 +37,16 @@ public class PlayerMovement : MonoBehaviour
       transform.rotation = notFlipped;
     }
 
-    if(Input.GetButtonDown("Jump") && Physics2D.OverlapCircle(GroundCheck.position, 0.05f, canJumpOnLayer)){
-      isJumping = true;
+    isGrounded = Physics2D.OverlapCircle(GroundCheck.position, 0.05f, canJumpOnLayer);
+    if(Input.GetButtonDown("Jump") && isGrounded){
+      rb.velocity = new Vector2(rb.velocity.y, jumpForce);
+    }
+    if(Input.GetButtonUp("Jump") && rb.velocity.y > 0){
+      rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
     }
   }
 
   void FixedUpdate(){
     rb.velocity = new Vector2(movement, rb.velocity.y);
-    if(isJumping){
-      rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-      isJumping = false;
-    }
   }
 }
